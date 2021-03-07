@@ -34,7 +34,7 @@ def doINeedWaring():
             proc_name = win32process.GetModuleFileNameEx(processToCheck, 0)
             checkSuccess = True
         except pywintypes.error:
-            time.sleep(50)
+            time.sleep(0.1)
             print(
                 "(Don't panic! This is for developers!) Win32 error happeend: fW={}, fWTitle={}, thread_id={}, process_id={}, processToCheck={}, proc_name={}".format(
                     frontWindowHandle, frontWindowHandleTitle, thread_id, process_id, processToCheck, proc_name))
@@ -45,9 +45,9 @@ def doINeedWaring():
             needWaring = False
             break
 
-    if needWaring:
-        print("You are not working! {} | {}".format(
-            frontWindowHandleTitle, proc_name))
+    message = "You are {}working! {} | {}".format(
+        "not " if needWaring else "", frontWindowHandleTitle, proc_name)
+    print(message)
 
     return needWaring
 
