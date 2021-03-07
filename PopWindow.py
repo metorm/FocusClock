@@ -16,7 +16,7 @@ class WindowNotify(QWidget):
         self.label.setAlignment(Qt.AlignCenter)
 
         self.label.setStyleSheet(
-            "font-size: 36pt; font-family: Microsoft Yahei, Roman;")
+            "font-size: 96px; font-family: Microsoft Yahei, Roman;")
 
         p = self.palette()
         p.setColor(self.backgroundRole(), Qt.black)
