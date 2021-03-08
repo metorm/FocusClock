@@ -1,52 +1,51 @@
-from os import system
 import time
 import sys
+import json
 
 from win32 import win32gui, win32process, win32api
 import win32con
 import pywintypes
 
 import PopWindow
+from WhiteList import WhiteList
+
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QTimer, Qt
 
-whiteWindowPrefixList = [
-    "Office\\root\Office16\WINWORD.EXE", "Office\\root\Office16\VISIO.EXE", "Code\Code.exe", "SearchApp.exe"]
+
+theWhiteList: WhiteList = None
 
 popWindowObject = None
 
 
 def doINeedWaring():
     checkSuccess = False
-    proc_name = None
+    processName = None
+    frontWindowTitle = None
 
     while not checkSuccess:
         try:
-            frontWindowHandle = frontWindowHandleTitle = thread_id = process_id = processToCheck = proc_name = None
+            frontWindowHandle = frontWindowTitle = thread_id = process_id = processToCheck = processName = None
 
             frontWindowHandle = win32gui.GetForegroundWindow()
-            frontWindowHandleTitle = win32gui.GetWindowText(frontWindowHandle)
+            frontWindowTitle = win32gui.GetWindowText(frontWindowHandle)
 
             thread_id, process_id = win32process.GetWindowThreadProcessId(
                 frontWindowHandle)
             processToCheck = win32api.OpenProcess(
                 win32con.PROCESS_QUERY_INFORMATION | win32con.PROCESS_VM_READ, False, process_id)
-            proc_name = win32process.GetModuleFileNameEx(processToCheck, 0)
+            processName = win32process.GetModuleFileNameEx(processToCheck, 0)
             checkSuccess = True
         except pywintypes.error:
             time.sleep(0.1)
             print(
                 "(Don't panic! This is for developers!) Win32 error happeend: fW={}, fWTitle={}, thread_id={}, process_id={}, processToCheck={}, proc_name={}".format(
-                    frontWindowHandle, frontWindowHandleTitle, thread_id, process_id, processToCheck, proc_name))
+                    frontWindowHandle, frontWindowTitle, thread_id, process_id, processToCheck, processName))
 
-    needWaring = True
-    for w in whiteWindowPrefixList:
-        if proc_name.endswith(w):
-            needWaring = False
-            break
+    needWaring = not theWhiteList.test(processName, frontWindowTitle)
 
     message = "You are {}working! {} | {}".format(
-        "not " if needWaring else "", frontWindowHandleTitle, proc_name)
+        "not " if needWaring else "", frontWindowTitle, processName)
     print(message)
 
     return needWaring
@@ -74,6 +73,12 @@ if __name__ == "__main__":
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 
     app = QApplication(sys.argv)
+
+    # list
+    theWhiteList = WhiteList()
+    with open("SampleConfig.json") as jFile:
+        configData = json.load(jFile)
+        theWhiteList.buildFromDict(configData["whiteList"])
 
     # window
     popWindowObject = PopWindow.WindowNotify(animationDuration=50)

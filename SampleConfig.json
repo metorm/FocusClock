@@ -1,0 +1,60 @@
+{
+    "config": {
+        "version": 1,
+        "toDevelop": "nothing to config now"
+    },
+    "whiteList": [
+        {
+            "name": "Microsoft Word",
+            "process": {
+                "flag": "WINWORD.EXE",
+                "type": "TAIL",
+                "isPositiveRule": true
+            },
+            "title": {
+                "flag": "Word",
+                "type": "ANY",
+                "isPositiveRule": true
+            }
+        },
+        {
+            "name": "Microsoft Viso",
+            "process": {
+                "flag": "VISIO.EXE",
+                "type": "TAIL",
+                "isPositiveRule": true
+            },
+            "title": {
+                "flag": "Visio",
+                "type": "ANY",
+                "isPositiveRule": true
+            }
+        },
+        {
+            "name": "Visual Studio Code",
+            "process": {
+                "flag": "Code.exe",
+                "type": "TAIL",
+                "isPositiveRule": true
+            },
+            "title": {
+                "flag": "Code",
+                "type": "TAIL",
+                "isPositiveRule": true
+            }
+        },
+        {
+            "name": "Start Menu & search",
+            "process": {
+                "flag": "SearchApp.exe",
+                "type": "TAIL",
+                "isPositiveRule": true
+            },
+            "title": {
+                "flag": "",
+                "type": "TAIL",
+                "isPositiveRule": true
+            }
+        }
+    ]
+}
