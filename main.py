@@ -6,19 +6,20 @@ from win32 import win32gui, win32process, win32api
 import win32con
 import pywintypes
 
+import globalData as g
 import PopWindow
 from WhiteList import WhiteList
+import trayMenu
 
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QTimer, Qt
 
 
-theWhiteList: WhiteList = None
-
-popWindowObject = None
-
-
 def doINeedWaring():
+
+    if not g.running:
+        return False
+
     checkSuccess = False
     processName = None
     frontWindowTitle = None
@@ -42,7 +43,7 @@ def doINeedWaring():
                 "(Don't panic! This is for developers!) Win32 error happeend: fW={}, fWTitle={}, thread_id={}, process_id={}, processToCheck={}, proc_name={}".format(
                     frontWindowHandle, frontWindowTitle, thread_id, process_id, processToCheck, processName))
 
-    needWaring = not theWhiteList.test(processName, frontWindowTitle)
+    needWaring = not g.theWhiteList.test(processName, frontWindowTitle)
 
     message = "You are {}working! {} | {}".format(
         "not " if needWaring else "", frontWindowTitle, processName)
@@ -51,21 +52,16 @@ def doINeedWaring():
     return needWaring
 
 
-previousWaringStatus = False
-
-
 def postWarningIfNeeded():
-    global previousWaringStatus
-
     currentWarningStatus = doINeedWaring()
 
-    if(previousWaringStatus != currentWarningStatus):
+    if(g.previousWaringStatus != currentWarningStatus):
         if (currentWarningStatus):
-            popWindowObject.showViaAnimation()
+            g.popWindowObject.showViaAnimation()
         else:
-            popWindowObject.closeViaAnimation()
+            g.popWindowObject.closeViaAnimation()
 
-    previousWaringStatus = currentWarningStatus
+    g.previousWaringStatus = currentWarningStatus
 
 
 if __name__ == "__main__":
@@ -75,18 +71,21 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     # list
-    theWhiteList = WhiteList()
+    g.theWhiteList = WhiteList()
     with open("SampleConfig.json") as jFile:
         configData = json.load(jFile)
-        theWhiteList.buildFromDict(configData["whiteList"])
+        g.theWhiteList.buildFromDict(configData["whiteList"])
 
     # window
-    popWindowObject = PopWindow.WindowNotify(animationDuration=50)
-    popWindowObject.show()
+    g.popWindowObject = PopWindow.WindowNotify(animationDuration=50)
+    g.popWindowObject.show()
 
     # timer
     checkTimer = QTimer(timeout=postWarningIfNeeded)
     checkTimer.setInterval(1000)
     checkTimer.start()
+
+    # tray
+    trayMenu.setupTray(g.popWindowObject)
 
     sys.exit(app.exec_())
