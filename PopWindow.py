@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt, QPropertyAnimation, QPoint, QTimer, QPropertyAnimation, pyqtProperty
+from PyQt5.QtCore import Qt, QPropertyAnimation, QPoint, QTimer, QPropertyAnimation
 from PyQt5.QtWidgets import QLabel, QWidget, QPushButton, QHBoxLayout, QGraphicsColorizeEffect, QApplication
 from PyQt5.QtGui import QColor
 

@@ -2,7 +2,9 @@ import time
 import sys
 import json
 
-from win32 import win32gui, win32process, win32api
+import win32gui
+import win32process
+import win32api
 import win32con
 import pywintypes
 
@@ -23,9 +25,12 @@ def doINeedWaring():
     checkSuccess = False
     processName = None
     frontWindowTitle = None
+    checkCount = 0
 
     while not checkSuccess:
         try:
+            checkCount = checkCount + 1
+
             frontWindowHandle = frontWindowTitle = thread_id = process_id = processToCheck = processName = None
 
             frontWindowHandle = win32gui.GetForegroundWindow()
@@ -38,16 +43,19 @@ def doINeedWaring():
             processName = win32process.GetModuleFileNameEx(processToCheck, 0)
             checkSuccess = True
         except pywintypes.error:
-            time.sleep(0.1)
-            print(
-                "(Don't panic! This is for developers!) Win32 error happeend: fW={}, fWTitle={}, thread_id={}, process_id={}, processToCheck={}, proc_name={}".format(
-                    frontWindowHandle, frontWindowTitle, thread_id, process_id, processToCheck, processName))
+            time.sleep(1)
+            if(checkCount > 10):
+                # maybe the user is using an app with administration authorization
+                return False
+            # print(
+            #     "(Don't panic! This is for developers!) Win32 error happeend: fW={}, fWTitle={}, thread_id={}, process_id={}, processToCheck={}, proc_name={}".format(
+            #         frontWindowHandle, frontWindowTitle, thread_id, process_id, processToCheck, processName))
 
     needWaring = not g.theWhiteList.test(processName, frontWindowTitle)
 
-    message = "You are {}working! {} | {}".format(
-        "not " if needWaring else "", frontWindowTitle, processName)
-    print(message)
+    # message = "You are {}working! {} | {}".format(
+    #     "not " if needWaring else "", frontWindowTitle, processName)
+    # print(message)
 
     return needWaring
 
